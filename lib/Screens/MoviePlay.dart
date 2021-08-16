@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
+// import 'package:sizer/sizer.dart';
 
 class MoviePlay extends StatefulWidget {
+  final tvData;
+  MoviePlay(this.tvData);
 
   @override
   _MoviePlayState createState() => _MoviePlayState();
@@ -26,7 +28,7 @@ class _MoviePlayState extends State<MoviePlay> {
                 image: DecorationImage(
                   colorFilter:
                       ColorFilter.mode(Colors.black12, BlendMode.colorBurn),
-                  image: AssetImage("assets/image4.jpeg"),
+                  image: NetworkImage("https://image.tmdb.org/t/p/original${widget.tvData['dt_poster']}"),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -57,10 +59,10 @@ class _MoviePlayState extends State<MoviePlay> {
                   "Peter on Holidays",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18.sp,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600),
                 ),
-                SizedBox(height: 2.5.h,),
+                SizedBox(height: 2.5,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -164,14 +166,14 @@ class _MoviePlayState extends State<MoviePlay> {
                 Text(
                   "Lorem Ipsum is simply dummy text of the printing",
                   style: TextStyle(color: Colors.white, 
-                  fontSize: 10.sp),
+                  fontSize: 10),
                 ),
                 SizedBox(
                   height: 15,
                 ),
                 Text(
                   "Lorem Ipsum is simply dummy text of the printing",
-                  style: TextStyle(color: Colors.white, fontSize: 10.sp),
+                  style: TextStyle(color: Colors.white, fontSize: 10),
                 ),
                 SizedBox(
                   height: 20,
@@ -183,7 +185,7 @@ class _MoviePlayState extends State<MoviePlay> {
                       "Seasons",
                       style: TextStyle(
                           color: Colors.amber,
-                          fontSize: 9.sp,
+                          fontSize: 9,
                           fontWeight: FontWeight.w600),
                     ),
                     SizedBox(
@@ -193,7 +195,7 @@ class _MoviePlayState extends State<MoviePlay> {
                       "Reviews",
                       style: TextStyle(
                           color: Colors.white70,
-                          fontSize: 8.sp,
+                          fontSize: 8,
                           fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -207,7 +209,7 @@ class _MoviePlayState extends State<MoviePlay> {
                       "Season 1",
                       style: TextStyle(
                           color: Colors.amber,
-                          fontSize: 8.5.sp,
+                          fontSize: 8.5,
                           fontWeight: FontWeight.w600),
                     ),
                     SizedBox(
@@ -217,7 +219,7 @@ class _MoviePlayState extends State<MoviePlay> {
                       "Season 2",
                       style: TextStyle(
                           color: Colors.white60,
-                          fontSize: 8.sp,
+                          fontSize: 8,
                           fontWeight: FontWeight.w600),
                     ),
                     SizedBox(
@@ -227,7 +229,7 @@ class _MoviePlayState extends State<MoviePlay> {
                       "Season 3",
                       style: TextStyle(
                           color: Colors.white60,
-                          fontSize: 8.sp,
+                          fontSize: 8,
                           fontWeight: FontWeight.w600),
                     ),
                   ],

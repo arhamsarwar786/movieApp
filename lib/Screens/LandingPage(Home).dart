@@ -1,5 +1,6 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:egybest/Screens/Profile.dart';
+import 'package:egybest/Screens/TV_Grid.dart';
 import 'package:egybest/Screens/favorite.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -8,7 +9,10 @@ import 'package:tmdb_easy/easyTMDB.dart';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 import 'BottomBar.dart';
+import 'GridShow.dart';
+import 'MoviePlay.dart';
 import 'SHOW.dart';
+import 'SeasonsGrid.dart';
 import 'movieScreen.dart';
 import 'translate.dart';
 import 'search.dart';
@@ -66,36 +70,33 @@ class _LandingState extends State<Landing> {
         [],
         []
       ];
+
+    var tvShow;
+
+      getTVData()async{
+
+         var data =  await http.get("https://xegybest.com/wp-json/wp/v2/tvshows");
+          tvShow =  jsonDecode(data.body);
+          setState(() {
+                      
+                    });
+      }
   getAllDataWP() async {
     print("Enter into WP Function");
-    data = await http.get("https://xegybest.com/wp-json/wp/v2/movie");
-    var download =
-        await http.get("https://xegybest.com/wp-json/wp/v2/dt_links");
-    var downloadLinkAll = jsonDecode(download.body);
+    data = await http.get("https://xegybest.com/wp-json/wp/v2/movie").timeout(Duration(minutes: 1));
+    // var download =
+    //     await http.get("https://xegybest.com/wp-json/wp/v2/dt_links");
+    // var downloadLinkAll = jsonDecode(download.body);
 
     // print(data.statusCode);
     moviesDataWp = jsonDecode(data.body);
-    print(downloadLinkAll[0]['title']['rendered']);
-    print(moviesDataWp[0]['original_title']);
-    bool d = moviesDataWp[0]['original_title'] ==
-        downloadLinkAll[0]['title']['rendered'];
-    print(d);
+    // print(downloadLinkAll[0]['title']['rendered']);
+    // print(moviesDataWp[0]['original_title']);
+    // bool d = moviesDataWp[0]['original_title'] ==
+    //     downloadLinkAll[0]['title']['rendered'];
+    // print(d);
 
-    for (var i = 0; i < moviesDataWp.length; i++) {
-      for (var j = 0; j < downloadLinkAll.length; j++) {
-        if (moviesDataWp[i]['title']['rendered'] ==
-            downloadLinkAll[j]['title']['rendered']) {
-          downloadLink[i].add({
-            "title": "${downloadLinkAll[j]['title']['rendered']}",
-            "_dool_url": "${downloadLinkAll[j]['_dool_url']}",
-            "_dool_lang": "${downloadLinkAll[j]['_dool_lang']}",
-            "_dool_type": "${downloadLinkAll[j]['_dool_type']}",
-            "_dool_quality": "${downloadLinkAll[j]['_dool_quality']}",
-            "dt_views_count": "${downloadLinkAll[j]['dt_views_count']}"
-          });
-        }
-      }
-    }
+    
 
     print(downloadLink);
     // print("wait $moviesDataWp");
@@ -124,30 +125,32 @@ class _LandingState extends State<Landing> {
   void initState() {
     super.initState();
     // getMoviesById();
-    topRatedMovies();
+    // topRatedMovies();
     // popularMovies();
     // upComingMovies();
     getAllDataWP();
     genresVal();
+    getTVData();
 
     // var lang = Hive.openBox("lang");
     // Translate.myCon();
   }
-  dynamic genres = <Widget>[]; 
-  genresVal() async {
-    tmdb.genres().movie().then((value){ 
-       var data  =  value.toJson();
-        for (var item in data['genres']) {
-       genres.add(InkWell(child: Tab(text: item['name'],),onTap: (){
-         print(item['name']);
-       },));
 
-        }
-       });
-      print(genres);
-       setState(() {
-                
-              });
+  dynamic genres = [Tab(
+          text: "All",
+        ),];
+  genresVal() async {
+    // tmdb.genres().movie().then((value) {
+    //   var data = value.toJson();
+    //   for (var item in data['genres']) {
+    //     genres.add(Tab(
+    //       text: item['name'],
+    //     ),
+    //     );
+    //   }
+    setState(() {});
+    // });
+    print(genres);
   }
 
   var topRated, popular, upComing;
@@ -218,16 +221,15 @@ class _LandingState extends State<Landing> {
 
     var size = MediaQuery.of(context).size;
     return
-        (genres  == null) || (moviesDataWp == null)
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            :
+    //  (genres == null) || (moviesDataWp == null)
+    //     ? Center(
+    //         child: CircularProgressIndicator(),
+    //       )
+    //     : 
         DefaultTabController(
-            length: genres.length,
+            length: genres.length == null ? 0 : genres.length,
             child: SafeArea(
               child: Scaffold(
-                
                 backgroundColor: Colors.black,
                 bottomNavigationBar: BottomNavigationDot(
                   paddingBottomCircle: 21,
@@ -248,7 +250,8 @@ class _LandingState extends State<Landing> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Searching()),
+                            MaterialPageRoute(
+                                builder: (context) => Searching()),
                           );
                         }),
                     BottomNavigationDotItem(
@@ -256,7 +259,8 @@ class _LandingState extends State<Landing> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Favourite()),
+                            MaterialPageRoute(
+                                builder: (context) => Favourite()),
                           );
                         }),
                     BottomNavigationDotItem(
@@ -282,7 +286,6 @@ class _LandingState extends State<Landing> {
                 appBar: AppBar(
                   backwardsCompatibility: false,
                   backgroundColor: Color(0xff181818),
-                 
                   centerTitle: true,
                   title: Image.asset(
                     "assets/images/egybest.png",
@@ -296,43 +299,45 @@ class _LandingState extends State<Landing> {
                     isScrollable: true,
                     tabs: genres,
 
-
-                      // ListView.builder(itemBuilder: (context, i ){
-                      //   return [ Tab(
-                      //   text: "${genres[i]['name']}",
-                      // );],
-                      // },itemCount: genres.length,)
-                      // Tab(
-                      //   text: "  ACTION ",
-                      // ),
-                      // Tab(
-                      //   text: "ADVENTURE",
-                      // ),
-                      // Tab(
-                      //   text: " THRILLER ",
-                      // ),
-                      // Tab(
-                      //   text: "ROMANTIC ",
-                      // ),
-                      // Tab(
-                      //   text: " TV SHOW ",
-                      // ),
-                      // Tab(
-                      //   text: " SEASON  ",
-                      // ),
-                      // Tab(
-                      //   text: "  DRAMA  ",
-                      // ),
+                    // ListView.builder(itemBuilder: (context, i ){
+                    //   return [ Tab(
+                    //   text: "${genres[i]['name']}",
+                    // );],
+                    // },itemCount: genres.length,)
+                    // Tab(
+                    //   text: "  ACTION ",
+                    // ),
+                    // Tab(
+                    //   text: "ADVENTURE",
+                    // ),
+                    // Tab(
+                    //   text: " THRILLER ",
+                    // ),
+                    // Tab(
+                    //   text: "ROMANTIC ",
+                    // ),
+                    // Tab(
+                    //   text: " TV SHOW ",
+                    // ),
+                    // Tab(
+                    //   text: " SEASON  ",
+                    // ),
+                    // Tab(
+                    //   text: "  DRAMA  ",
+                    // ),
                   ),
                   actions: [
                     IconButton(
                         onPressed: () {
                           // var p = tmdb.search().movie("Action").then((value) => print(value.toJson()));
                           // tmdb.find().externalItem('28', "Action").then((value) => print(value.toJson()));
-                          tmdb.people().movieCredits(28).then((value) => print(value.toJson()));
-                          
-                          // print(res);
+                          // tmdb
+                          //     .people()
+                          //     .movieCredits(28)
+                          //     .then((value) => print(value.toJson()));
+                          genresVal();
 
+                          // print(res);
 
                           // https://api.themoviedb.org/3/person/28/movie_credits?api_key=05902896074695709d7763505bb88b4d
                         },
@@ -353,9 +358,8 @@ class _LandingState extends State<Landing> {
 // Center(child: Text("A",style: TextStyle(color: Colors.white),)),
 
 //                       ]),
-                      
-                      
-                      topRated == null
+
+                      moviesDataWp == null
                           ? Center(
                               child: CircularProgressIndicator(),
                             )
@@ -363,16 +367,30 @@ class _LandingState extends State<Landing> {
                       //  popular == null ? Center(child: CircularProgressIndicator(),)   : moviesList(
                       //           size.width, size.height, 'TOP TRENDING', popular),
                       //    upComing == null ? Center(child: CircularProgressIndicator(),)   :    moviesList(size.width, size.height, "NEWEST", upComing),
-                      topRated == null
+                      moviesDataWp == null
                           ? Center(
                               child: CircularProgressIndicator(),
                             )
                           : moviesList(
-                              size.width, size.height, "TOP RATED", topRated),
+                              size.width, size.height, "MOVIES", moviesDataWp),
                       Divider(
                         thickness: 1,
                         color: Colors.amber,
                       ),
+
+                       tvShow == null
+                          ? Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : tvShows(
+                              size.width, size.height, "TV SHOWS", tvShow),
+                      Divider(
+                        thickness: 1,
+                        color: Colors.amber,
+                      ),
+
+
+                      
                       // moviesDataWp == null
                       //     ? Center(child: CircularProgressIndicator())
                       //     : moviesList(
@@ -420,106 +438,6 @@ class _LandingState extends State<Landing> {
                       //             )
                       //           ],
                       //         ),
-                      Column(
-                        children: [
-                           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(children: [
-                Container(
-                  width: 4,
-                  height: 15,
-                  decoration: BoxDecoration(
-                    color: Colors.amber,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  margin: EdgeInsets.only(left: width * 0.05),
-                ),
-                Container(
-                  margin: EdgeInsets.only(left: width * 0.01),
-                  child: Text("MOVIES",
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ),
-              ]),
-              Container(
-                child: MaterialButton(
-                  onPressed: () {},
-                  child: Text(
-                    "SEE ALL",
-                    style: TextStyle(
-                      fontSize: 12.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-                          Container(
-                            height: height * 0.235,
-                            margin: EdgeInsets.only(
-                              left: width * 0.05,
-                            ),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: moviesDataWp.length,
-                              itemBuilder: (BuildContext context, int i) {
-                                return InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => SHOW(
-                                            moviesDataWp[i], downloadLink[i]),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    margin: EdgeInsets.only(
-                                      right: width * 0.02,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          height: height * 0.165,
-                                          width: width * 0.27,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                            image: DecorationImage(
-                                              image: NetworkImage(
-                                                  "https://image.tmdb.org/t/p/original${moviesDataWp[i]['dt_poster']}"),
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: width * 0.27,
-                                          margin: EdgeInsets.only(
-                                            top: height * 0.02,
-                                          ),
-                                          child: Text(
-                                            "${moviesDataWp[i]['original_title']}",
-                                            style: TextStyle(
-                                                fontSize: 8.0, color: Colors.white),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                   //         ]),
@@ -558,7 +476,7 @@ class _LandingState extends State<Landing> {
 
                 scrollDirection: Axis.horizontal,
               ),
-              itemCount: topRated["results"].length,
+              itemCount: moviesDataWp.length,
               itemBuilder:
                   (BuildContext context, int itemIndex, int pageViewIndex) {
                 // setState(() {
@@ -577,7 +495,7 @@ class _LandingState extends State<Landing> {
                       // borderRadius: BorderRadius.circular(12.0),
                       image: DecorationImage(
                     image: NetworkImage(
-                        "${topRated['results'][itemIndex]['poster_path']}"),
+                        "https://image.tmdb.org/t/p/original${moviesDataWp[itemIndex]['dt_backdrop']}"),
                     fit: BoxFit.cover,
                   )),
                 );
@@ -651,111 +569,218 @@ class _LandingState extends State<Landing> {
   }
 
   Widget moviesList(width, height, text, moviesData) {
-    return Container(
-      margin: EdgeInsets.only(top: height * 0.01),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        //  border: Border.all(color: Colors.white)
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(children: [
-                Container(
-                  width: 4,
-                  height: 15,
-                  decoration: BoxDecoration(
-                    color: Colors.amber,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  margin: EdgeInsets.only(left: width * 0.05),
-                ),
-                Container(
-                  margin: EdgeInsets.only(left: width * 0.01),
-                  child: Text(text,
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ),
-              ]),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(children: [
               Container(
-                child: MaterialButton(
-                  onPressed: () {},
-                  child: Text(
-                    "SEE ALL",
+                width: 4,
+                height: 15,
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                margin: EdgeInsets.only(left: width * 0.05),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: width * 0.01),
+                child: Text("$text",
                     style: TextStyle(
-                      fontSize: 12.0,
+                      fontSize: 15.0,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                    ),
+                    )),
+              ),
+            ]),
+            Container(
+              child: MaterialButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> Grid(moviesDataWp)));
+                },
+                child: Text(
+                  "SEE ALL",
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            ],
-          ),
-          Container(
-            height: height * 0.235,
-            margin: EdgeInsets.only(
-              left: width * 0.05,
             ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemCount: moviesData['results'].length,
-              itemBuilder: (BuildContext context, int i) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            MovieDetail(moviesData['results'][i]),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(
-                      right: width * 0.02,
+          ],
+        ),
+        Container(
+          height: height * 0.235,
+          margin: EdgeInsets.only(
+            left: width * 0.05,
+          ),
+          child: ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: moviesData.length,
+            itemBuilder: (BuildContext context, int i) {
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SHOW(moviesData[i]),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: height * 0.165,
-                          width: width * 0.27,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                  "${moviesData['results'][i]['backdrop_path']}"),
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: width * 0.27,
-                          margin: EdgeInsets.only(
-                            top: height * 0.02,
-                          ),
-                          child: Text(
-                            "${moviesData['results'][i]['original_title']}",
-                            style:
-                                TextStyle(fontSize: 8.0, color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.only(
+                    right: width * 0.02,
                   ),
-                );
-              },
-            ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: height * 0.165,
+                        width: width * 0.27,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                "https://image.tmdb.org/t/p/original${moviesData[i]['dt_poster']}"),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: width * 0.27,
+                        margin: EdgeInsets.only(
+                          top: height * 0.02,
+                        ),
+                        child: Text(
+                          "${moviesData[i]['original_title']}",
+                          style: TextStyle(fontSize: 8.0, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+
+  
+  Widget tvShows(width, height, text, tvData) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(children: [
+              Container(
+                width: 4,
+                height: 15,
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                margin: EdgeInsets.only(left: width * 0.05),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: width * 0.01),
+                child: Text("$text",
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ),
+            ]),
+            Container(
+              child: MaterialButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> TVGrid(tvData)));
+                },
+                child: Text(
+                  "SEE ALL",
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        Container(
+          height: height * 0.235,
+          margin: EdgeInsets.only(
+            left: width * 0.05,
+          ),
+          child: ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: tvData.length,
+            itemBuilder: (BuildContext context, int i) {
+              return InkWell(
+                onTap: () async{
+                   var seasons = [];
+                      var data = await http.get("https://xegybest.com/wp-json/wp/v2/seasons");
+                      var res = jsonDecode(data.body);
+                      // print(d[0]);
+
+                      for (var j = 0; j < res.length; j++) {
+                      var d = res[j]['title']['rendered'].toString().split(":");
+                      if (tvData[i]['title']['rendered'] == d[0]) {
+                        seasons.add(res[j]);
+                      }
+                        
+                      }
+                      // seasons.reversed;
+                      print(seasons);
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> SeasonsGrid(seasons.reversed.toList())));
+                },
+                child: Container(
+                  margin: EdgeInsets.only(
+                    right: width * 0.02,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: height * 0.165,
+                        width: width * 0.27,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                "https://image.tmdb.org/t/p/original${tvData[i]['dt_poster']}"),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: width * 0.27,
+                        margin: EdgeInsets.only(
+                          top: height * 0.02,
+                        ),
+                        child: Text(
+                          "${tvData[i]['title']['rendered']}",
+                          style: TextStyle(fontSize: 8.0, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

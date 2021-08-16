@@ -42,7 +42,6 @@
 //                 "${widget.link['_dool_url']}",
 //                 "${widget.link['title']}.mp4")
 
-                
 //             .then((onValue) {});
 //       },
 //       textColor: Colors.black,
@@ -53,8 +52,6 @@
 //       ),
 //     );
 //   }
-
-  
 
 //   Widget downloadProgress() {
 //     var fileDownloaderProvider =
@@ -98,35 +95,89 @@
 //   }
 // }
 
-
-
-
-
-
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:hive/hive.dart';
 
 import 'download_provider.dart';
 // import 'movieSc.dart';
 
 class Download extends StatefulWidget {
-  final link;
+  final allMoviesData, link;
 
-   Download( [this.link]);
+  Download([this.allMoviesData, this.link]);
 
   @override
   _DownloadState createState() => _DownloadState();
 }
 
 class _DownloadState extends State<Download> {
+  var downloadKey, downloadVal;
+  var fileDownloaderProvider;
+  @override
+  void initState() {
+    super.initState();
+
+    downloadKey = Hive.box("downloadKey");
+    downloadVal = Hive.box("downloadVal");
+
+    fileDownloaderProvider =
+        Provider.of<FileDownloaderProvider>(context, listen: false);
+    downloadButton(fileDownloaderProvider);
+
+    setState(() {});
+  }
+
+
+
+  initFun() async{
+      downloadKey.put('${widget.allMoviesData['original_title']}',{
+        ""
+      });
+    
+    
+  }
+
+  downloadButton(FileDownloaderProvider downloaderProvider) {
+    // return new FlatButton(
+    //   onPressed: () {
+
+    var url = widget.link['_dool_url'].toString().replaceAll("http", "https");
+    downloaderProvider
+        .downloadFile(
+            // "https://gdplyr.2all.net/stream/720/Chi7Q2Mtdob3mKX.mp4",
+            "$url",
+            "${widget.link['title']}.mp4")
+        .then((onValue) {});
+
+    // print(onValue);
+
+    // downloaderProvider.
+    // },
+    // textColor: Colors.black,
+    // color: Colors.redAccent,
+    // padding: const EdgeInsets.all(8.0),
+    // child: new Text(
+    //   "Download File",
+    // ),
+    // );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var fileDownloaderProvider =
-        Provider.of<FileDownloaderProvider>(context, listen: false);
-
     return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            fileDownloaderProvider =
+                Provider.of<FileDownloaderProvider>(context, listen: false);
+            downloadButton(fileDownloaderProvider);
+
+            // downloadButton(fileDownloaderProvider);
+          },
+        ),
         backgroundColor: Color(0x67414040),
         appBar: AppBar(
           elevation: 0,
@@ -195,7 +246,7 @@ class ListItem extends StatelessWidget {
                   Text(
                     "${link['title']}",
                     style: TextStyle(
-                      fontSize: 35,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: Colors.amber,
                     ),
@@ -215,7 +266,10 @@ class ListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                          icon: Icon(Icons.download_outlined),
+                          icon: Icon(
+                            Icons.download_outlined,
+                            color: Colors.red,
+                          ),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -241,51 +295,31 @@ class ListItem extends StatelessWidget {
               width: size.width / 2,
             ),
           ),
-          Positioned(
-            left: size.width / 60,
-            top: size.height / 45,
-            bottom: size.width / 40,
-            child: Container(
-              child: Image.network(
-                  "https://static.wikia.nocookie.net/jumanji/images/1/1b/Jumanji_2017_Poster.jpg/revision/latest?cb=20181023182751"),
-              width: 150,
-            ),
-          ),
+          // Positioned(
+          //   left: size.width / 60,
+          //   top: size.height / 45,
+          //   bottom: size.width / 40,
+          //   child: Container(
+          //     child: Image.network(
+          //         "https://static.wikia.nocookie.net/jumanji/images/1/1b/Jumanji_2017_Poster.jpg/revision/latest?cb=20181023182751"),
+          //     width: 150,
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
-  Widget dowloadButton(FileDownloaderProvider downloaderProvider) {
-    return new FlatButton(
-      onPressed: () {
-        downloaderProvider
-            .downloadFile(
-                "https://gdplyr.2all.net/stream/720/Chi7Q2Mtdob3mKX.mp4",
-                "My File.mp4")
-            .then((onValue) {});
-      },
-      textColor: Colors.black,
-      color: Colors.redAccent,
-      padding: const EdgeInsets.all(8.0),
-      child: new Text(
-        "Download File",
-      ),
-    );
-  }
-
   Widget downloadProgress() {
+    Builder(builder: (context) {
+      var fileDownloaderProvider =
+          Provider.of<FileDownloaderProvider>(context, listen: true);
 
-    Builder(builder: (context){
-    var fileDownloaderProvider =
-        Provider.of<FileDownloaderProvider>(context, listen: true);
-       
-    return  Text(
-      downloadStatus(fileDownloaderProvider),
-      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-    );
+      return Text(
+        downloadStatus(fileDownloaderProvider),
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      );
     });
-
   }
 
   downloadStatus(FileDownloaderProvider fileDownloaderProvider) {

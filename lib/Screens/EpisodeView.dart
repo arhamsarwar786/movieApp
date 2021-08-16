@@ -10,33 +10,25 @@ import 'package:http/http.dart' as http;
 
 // import 'videoPlay.dart';
 
-class SHOW extends StatefulWidget {
-  final allMoviesData;
-  SHOW(this.allMoviesData);
+class EpisodeView extends StatefulWidget {
+  final episode;
+  EpisodeView(this.episode);
 
   @override
-  _SHOWState createState() => _SHOWState();
+  _EpisodeViewState createState() => _EpisodeViewState();
 }
 
-class _SHOWState extends State<SHOW> {
+class _EpisodeViewState extends State<EpisodeView> {
   var favKey;
   var favVal;
   List myList = [];
 
-
-
-var downloadKey, downloadVal;
   @override
   void initState() {
     super.initState();
 
     favKey = Hive.box("favKey");
     favVal = Hive.box("favVal");
-
-        
-downloadKey = Hive.box("downloadKey");
-    downloadVal = Hive.box("downloadVal");
-    
     downloadVideo();
 
     setState(() {});
@@ -44,32 +36,37 @@ downloadKey = Hive.box("downloadKey");
   }
 
   List downloadLink = [];
-  downloadVideo() async {
+  downloadVideo()async{
+
+
     var download =
         await http.get("https://xegybest.com/wp-json/wp/v2/dt_links");
     var downloadLinkAll = jsonDecode(download.body);
 
     // for (var i = 0; i < moviesDataWp.length; i++) {
 
-    print((widget.allMoviesData['title']['rendered'] ==
-        downloadLinkAll[0]['title']['rendered']));
 
-    for (var j = 0; j < downloadLinkAll.length; j++) {
-      if (widget.allMoviesData['title']['rendered'] ==
-          downloadLinkAll[j]['title']['rendered']) {
-        downloadLink.add({
-          "title": "${downloadLinkAll[j]['title']['rendered']}",
-          "_dool_url": "${downloadLinkAll[j]['_dool_url']}",
-          "_dool_lang": "${downloadLinkAll[j]['_dool_lang']}",
-          "_dool_type": "${downloadLinkAll[j]['_dool_type']}",
-          "_dool_quality": "${downloadLinkAll[j]['_dool_quality']}",
-          "dt_views_count": "${downloadLinkAll[j]['dt_views_count']}"
-        });
-      }
+      // print((widget.episode['title']['rendered'] ==
+      //       downloadLinkAll[0]['title']['rendered']));
+
+      // for (var j = 0; j < downloadLinkAll.length; j++) {
+      //   if (widget.allMoviesData['title']['rendered'] ==
+      //       downloadLinkAll[j]['title']['rendered']) {
+      //     downloadLink.add({
+      //       "title": "${downloadLinkAll[j]['title']['rendered']}",
+      //       "_dool_url": "${downloadLinkAll[j]['_dool_url']}",
+      //       "_dool_lang": "${downloadLinkAll[j]['_dool_lang']}",
+      //       "_dool_type": "${downloadLinkAll[j]['_dool_type']}",
+      //       "_dool_quality": "${downloadLinkAll[j]['_dool_quality']}",
+      //       "dt_views_count": "${downloadLinkAll[j]['dt_views_count']}"
+      //     });
+      //   }
+      // }
+      // setState(() {
+              
+      //       });
+      // print(downloadLink);
     }
-    setState(() {});
-    print(downloadLink);
-  }
   // }
   // var tmdb = EasyTMDB("05902896074695709d7763505bb88b4d");
 
@@ -96,7 +93,7 @@ downloadKey = Hive.box("downloadKey");
 
   @override
   Widget build(BuildContext context) {
-    print(widget.allMoviesData);
+    print(widget.episode);
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
@@ -117,7 +114,7 @@ downloadKey = Hive.box("downloadKey");
                       child: text(
                           height * 0.02,
                           width * 0.05,
-                          "${widget.allMoviesData['original_title']}",
+                          "${widget.episode['episode_name']}",
                           18.0,
                           Colors.white),
                     ),
@@ -141,7 +138,7 @@ downloadKey = Hive.box("downloadKey");
                     text(
                         height * 0.01,
                         width * 0.05,
-                        "${widget.allMoviesData['release_date']}",
+                        "${widget.episode['release_date']}",
                         13.0,
                         Colors.white),
                   ],
@@ -163,7 +160,7 @@ downloadKey = Hive.box("downloadKey");
             ),
             containerStack(height, width),
             playButton(
-                height, width, widget.allMoviesData['repeatable_fields']),
+                height, width, widget.episode['repeatable_fields']),
           ],
         ),
       ),
@@ -180,7 +177,7 @@ downloadKey = Hive.box("downloadKey");
         decoration: BoxDecoration(
           image: DecorationImage(
             image: NetworkImage(
-                "https://image.tmdb.org/t/p/original${widget.allMoviesData['dt_backdrop']}"),
+                "https://image.tmdb.org/t/p/original${widget.episode['dt_backdrop']}"),
             fit: BoxFit.cover,
           ),
         ),
@@ -198,7 +195,7 @@ downloadKey = Hive.box("downloadKey");
         decoration: BoxDecoration(
           image: DecorationImage(
             image: NetworkImage(
-                "https://image.tmdb.org/t/p/original${widget.allMoviesData['dt_poster']}"),
+                "https://image.tmdb.org/t/p/original${widget.episode['dt_poster']}"),
             fit: BoxFit.cover,
           ),
         ),
@@ -330,7 +327,7 @@ downloadKey = Hive.box("downloadKey");
                 text(
                     height * 0.0,
                     width * 0.05,
-                    "${widget.allMoviesData['vote_average']}",
+                    "${widget.episode['vote_average']}",
                     20.0,
                     Colors.amber),
                 SizedBox(
@@ -372,16 +369,14 @@ downloadKey = Hive.box("downloadKey");
                                       FlatButton(
                                         minWidth:
                                             MediaQuery.of(context).size.width,
-                                        onPressed: () async {
+                                        onPressed: () {
                                           // widget.downloadLink[index]['']
-                                         
-                                              
                                           var link = downloadLink[index];
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      Download(widget.allMoviesData , link)));
+                                                      Download()));
                                         },
                                         child: Row(
                                           mainAxisAlignment:
@@ -432,32 +427,32 @@ downloadKey = Hive.box("downloadKey");
                     }
                     if (favKey.length == 0) {
                       await favVal
-                          .put("${widget.allMoviesData['original_title']}", {
-                        "allMoviesData": widget.allMoviesData,
+                          .put("${widget.episode['original_title']}", {
+                        "allMoviesData": widget.episode,
                         "downloadLink": downloadLink,
                       });
-                      await favKey.add(widget.allMoviesData['original_title']);
+                      await favKey.add(widget.episode['original_title']);
                       Scaffold.of(context).showSnackBar(SnackBar(
                           content: Text(
-                              "${widget.allMoviesData['original_title']} Added into Favorite")));
+                              "${widget.episode['original_title']} Added into Favorite")));
                     } else {
                       if (myList
-                          .contains(widget.allMoviesData['original_title'])) {
+                          .contains(widget.episode['original_title'])) {
                         Scaffold.of(context).showSnackBar(
                             SnackBar(content: Text("Already Added into Cart")));
                       } else {
                         if (favKey.length != 0) {
                           await favVal.put(
-                              "${widget.allMoviesData['original_title']}", {
-                            "allMoviesData": widget.allMoviesData,
+                              "${widget.episode['original_title']}", {
+                            "allMoviesData": widget.episode,
                             "downloadLink": downloadLink,
                           });
                           await favKey
-                              .add(widget.allMoviesData['original_title']);
+                              .add(widget.episode['original_title']);
                         }
                         Scaffold.of(context).showSnackBar(SnackBar(
                             content: Text(
-                          "${widget.allMoviesData['original_title']}",
+                          "${widget.episode['original_title']}",
                         )));
                       }
                     }
@@ -496,7 +491,7 @@ downloadKey = Hive.box("downloadKey");
         right: width * 0.05,
       ),
       child: ReadMoreText(
-        '${widget.allMoviesData['content']['rendered']}',
+        '${widget.episode['content']['rendered']}',
         style: TextStyle(color: Colors.white, fontSize: 14, height: 2),
         textAlign: TextAlign.justify,
         trimLines: 5,

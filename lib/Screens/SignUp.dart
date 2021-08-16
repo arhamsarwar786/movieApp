@@ -138,7 +138,7 @@ class _SignupState extends State<Signup> {
                                 onPressed: () async{
 
 
-                                  var noc = "<?php echo wp_create_nonce( 'wp_rest' ); ?>";
+                                  // var noc = "<?php echo wp_create_nonce( 'wp_rest' ); ?>";
                     //               var dio  =  Dio();
                     //              var res = await dio.post("https://xegybest.com/wp-json/wp/v2/users?username=${username.text}&email=${email.text}&password=${pws.text}",
                     //              options: Options(headers : {
@@ -151,7 +151,7 @@ class _SignupState extends State<Signup> {
                                   
                                 // https://xegybest.com/wp-json/wp/v2/users?username=irfan&email=irfan786@gmail.com&password=1234
 
-                                var res =  await http.get("https://xegybest.com/wp-json/wp/v2/users?username=irfann&email=irfan786@gmail.com&password=1234" , 
+                                var res =  await http.get("https://xegybest.com/wp-json/wp/v2/users?username=${username.text}&email=${email.text}@gmail.com&password=${pws.text}" , 
 
                                 // var res =  await http.post("https://xegybest.com/wp-json/jwt-auth/v1/token" , 
                   //                headers: {

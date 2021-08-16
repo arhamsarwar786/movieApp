@@ -1,21 +1,18 @@
 // import 'package:easy_localization/easy_localization.dart';
 import 'dart:convert';
 
+import 'package:egybest/Screens/SHOW.dart';
 import 'package:flutter/material.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:http/http.dart' as http;
 
 class Searching extends StatefulWidget {
-
   @override
   _SearchingState createState() => _SearchingState();
 }
 
 class _SearchingState extends State<Searching> {
-
-
-  var data,moviesDataWp,downloadLink;
-
+  var data, moviesDataWp, downloadLink;
 
   var searchList = [];
 
@@ -25,152 +22,142 @@ class _SearchingState extends State<Searching> {
     getAllDataWP();
   }
 
-   getAllDataWP() async {
-    print("Enter into WP Function");
+  getAllDataWP() async {
+    // print("Enter into WP Function");
     data = await http.get("https://xegybest.com/wp-json/wp/v2/movie");
-    var download =
-        await http.get("https://xegybest.com/wp-json/wp/v2/dt_links");
-    var downloadLinkAll = jsonDecode(download.body);
+
+    // var download =
+    //     await http.get("https://xegybest.com/wp-json/wp/v2/dt_links");
+    // var downloadLinkAll = jsonDecode(download.body);
 
     // print(data.statusCode);
     moviesDataWp = jsonDecode(data.body);
-    
-    print(downloadLinkAll[0]['title']['rendered']);
-    print(moviesDataWp[0]['original_title']);
-    bool d = moviesDataWp[0]['original_title'] ==
-        downloadLinkAll[0]['title']['rendered'];
-    print(d);
 
     for (var i = 0; i < moviesDataWp.length; i++) {
-
       searchList.add(moviesDataWp[i]['original_title']);
-      for (var j = 0; j < downloadLinkAll.length; j++) {
-        if (moviesDataWp[i]['title']['rendered'] ==
-            downloadLinkAll[j]['title']['rendered']) {
-          downloadLink[i].add({
-            "title": "${downloadLinkAll[j]['title']['rendered']}",
-            "_dool_url": "${downloadLinkAll[j]['_dool_url']}",
-            "_dool_lang": "${downloadLinkAll[j]['_dool_lang']}",
-            "_dool_type": "${downloadLinkAll[j]['_dool_type']}",
-            "_dool_quality": "${downloadLinkAll[j]['_dool_quality']}",
-            "dt_views_count": "${downloadLinkAll[j]['dt_views_count']}"
-          });
-        }
-      }
     }
 
-    print(downloadLink);
+    print(searchList);
 
     setState(() {});
-
   }
-  
 
-  
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
 
   String dataInput;
 
-
-
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  backgroundColor: Colors.black,
-  
-       appBar: AppBar(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
         //  elevation: 0,
-  backgroundColor: Colors.black87,
-         elevation: 8,
-         leading: IconButton(
-           onPressed: (){
-             
-                FocusScope.of(context).requestFocus(FocusNode());
-           },
-           icon: Icon(Icons.arrow_back
-           ,size: 21,
-           color: Colors.white,),
-         ),
-         
-         title: Padding(
-           padding: const EdgeInsets.only(right: 4,top: 10),
-          child: ConstrainedBox(
-          constraints: BoxConstraints.tightFor(width:MediaQuery.of(context).size.width*0.70,height: MediaQuery.of(context).size.width*0.11),
-          
-           
-           child: AutoCompleteTextField(
-            //  cursorColor: Colors.amber,
-
-                  itemSubmitted: (item) {
-                    print(item);
-                  },
-
-            
-      
-      key: key,
-      suggestions: searchList,
-      itemBuilder: (context, suggestion) => suggestion == dataInput ? Padding(
-        child: Container(
-
-          decoration: BoxDecoration(border: Border.all(color: Colors.red),color: Colors.black),
-          child: ListTile(
-            title: Text("No Item Found"),
+        backgroundColor: Colors.black87,
+        elevation: 8,
+        leading: IconButton(
+          onPressed: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back,
+            size: 21,
+            color: Colors.white,
           ),
         ),
-        padding: EdgeInsets.all(8.0),
-      ): Container(
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-        color: Colors.black,            
-          border: Border.all(color: Colors.amber)),
-        child: ListTile(
-          title: Text(suggestion,style: TextStyle(color:Colors.white),),
+
+        title: Padding(
+          padding: const EdgeInsets.only(right: 4, top: 10),
+          child: ConstrainedBox(
+            constraints: BoxConstraints.tightFor(
+                width: MediaQuery.of(context).size.width * 0.70,
+                height: MediaQuery.of(context).size.width * 0.11),
+            child: AutoCompleteTextField(
+              //  cursorColor: Colors.amber,
+
+              itemSubmitted: (item) {
+                print(item);
+              },
+
+              key: key,
+              suggestions: searchList,
+              itemBuilder: (context, suggestion) => suggestion == dataInput
+                  ? Padding(
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.red),
+                            color: Colors.black),
+                        child: ListTile(
+                          title: Text("No Item Found"),
+                        ),
+                      ),
+                      padding: EdgeInsets.all(8.0),
+                    )
+                  : InkWell(
+                    onTap: (){
+                      var val;
+                      for (var i = 0; i < moviesDataWp.length; i++) {
+                        if ( moviesDataWp[i]['original_title']  == suggestion) {
+                            setState(() {
+                            val = moviesDataWp[i];
+                                                          
+                                                        });
+                        }
+                        
+                      }
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> SHOW(val),),);
+                    },
+                    child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                            color: Colors.black,
+                            border: Border.all(color: Colors.amber)),
+                        child: ListTile(
+                          title: Text(
+                            suggestion,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                  ),
+              itemSorter: (a, b) => a.compareTo(b),
+              itemFilter: (suggestion, input) {
+                dataInput = input;
+                return suggestion.toLowerCase().startsWith(input.toLowerCase());
+              },
+
+              style: TextStyle(color: Colors.white, fontSize: 13, height: 1.5),
+              //  cursorColor: Colors.black,
+
+              // textAlign: TextAlign.start,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.white70,
+                  ),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                contentPadding: EdgeInsets.only(top: 20, left: 20),
+                fillColor: Colors.white12,
+                filled: true,
+                hintText: "Search Movies",
+                hintStyle: TextStyle(
+                  color: Colors.white,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.amber,
+                  ),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
-      itemSorter: (a, b) => a.compareTo(b),
-      itemFilter: (suggestion, input) {
-          dataInput = input;
-        return  suggestion.toLowerCase().startsWith(input.toLowerCase());},
+      body: SafeArea(
+        child: Container(),
 
-
-
-
-
-
-             style: TextStyle(color: Colors.white,fontSize: 13,height: 1.5),
-                    //  cursorColor: Colors.black,
-                    
-                            // textAlign: TextAlign.start,
-                            decoration: InputDecoration(
-
-                               enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white70, ),
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                              contentPadding: EdgeInsets.only(top: 20, left: 20),
-                            fillColor:Colors.white12,
-                            filled: true,
-                              hintText: "Search Movies",
-                              hintStyle: TextStyle(
-                                color: Colors.white,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.amber,
-                                ),
-                                   borderRadius: BorderRadius.circular(10.0),
-                              ),
-                      
-                            ),
-                   ),
-         ),
-         ),
-       ),
-
-        body: SafeArea(
-          child: Container(),
-          
         // child: ListView.builder(
         // itemCount: 8,
         //   itemBuilder: (context,index){
@@ -192,7 +179,7 @@ class _SearchingState extends State<Searching> {
         //                 children: [
         //                   Container(
         //                     height: 45,
-                            
+
         //                     width: 50,
         //                     decoration: BoxDecoration(
         //                       image: DecorationImage(
@@ -200,7 +187,7 @@ class _SearchingState extends State<Searching> {
         //                           fit: BoxFit.fill),
         //                     ),
         //                   ),
-                          
+
         //                   SizedBox(
         //                     width: 10,
         //                   ),
@@ -214,25 +201,24 @@ class _SearchingState extends State<Searching> {
         //                               color: Colors.white,
         //                               fontSize: 14,
         //                               fontWeight: FontWeight.w700),
-        //                         ),  
-                                
+        //                         ),
+
         //                       ],
         //                     ),
         //                   ),
         //                 ],
         //               ),
-                     
+
         //             ],
         //           ),
         //         ),
         //       ),
         //     );
-          
+
         //   }
-             
+
         //   ),
-        ),
-        );
-    
+      ),
+    );
   }
 }

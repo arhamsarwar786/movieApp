@@ -3,7 +3,7 @@ import 'package:egybest/Screens/downloadScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:readmore/readmore.dart';
 import 'package:tmdb_easy/easyTMDB.dart';
-
+import 'package:hive/hive.dart';
 // import 'videoPlay.dart';
 
 class MovieDetail extends StatefulWidget {
@@ -18,11 +18,13 @@ class _MovieDetailState extends State<MovieDetail> {
 
 
 
-
+var favKey , favVal, myList= [];
     @override
   void initState() {
     super.initState();
     popularMovies();
+     favKey = Hive.box("favKey");
+    favVal = Hive.box("favVal");
   }
 
 
@@ -308,10 +310,62 @@ class _MovieDetailState extends State<MovieDetail> {
             //   ),
             // ),
           ),
-          Icon(
-            Icons.star,
-            color: Colors.white,
-          ),
+            Builder(builder: (context) {
+                return IconButton(
+                  onPressed: () async {
+                    for (var i = 0; i < favKey.length; i++) {
+                      var res = favKey.getAt(i);
+                      print("in Loop $res");
+                      myList.add(res);
+                    }
+                    if (favKey.length == 0) {
+                      await favVal
+                          .put("${widget.allMoviesData['original_title']}", {
+                        "allMoviesData": widget.allMoviesData,
+                        "downloadLink": "",
+                      });
+                      await favKey.add(widget.allMoviesData['original_title']);
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              "${widget.allMoviesData['original_title']} Added into Favorite")));
+                    } else {
+                      if (myList
+                          .contains(widget.allMoviesData['original_title'])) {
+                        Scaffold.of(context).showSnackBar(
+                            SnackBar(content: Text("Already Added into Cart")));
+                      } else {
+                        if (favKey.length != 0) {
+                          await favVal.put(
+                              "${widget.allMoviesData['original_title']}", {
+                            "allMoviesData": widget.allMoviesData,
+                            "downloadLink": "",
+                          });
+                          await favKey
+                              .add(widget.allMoviesData['original_title']);
+                        }
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                          "${widget.allMoviesData['original_title']}",
+                        )));
+                      }
+                    }
+
+                    // var getKey =await favKey.add(widget.allMoviesData['original_title']);
+                    //  await favVal.put("${widget.allMoviesData['original_title']}", {
+                    //   "allMoviesData" : widget.allMoviesData,
+                    //   "downloadLink" : widget.downloadLink,
+                    // });
+                    //   var res = favVal.get(widget.allMoviesData['original_title']);
+                    // print(res['downloadLink'][0]['title']);
+
+                    // Navigator.push(context, MaterialPageRoute(builder: (context)=> Favourite()),);
+                  },
+                  icon: Icon(
+                    Icons.star,
+                    color: Colors.white,
+                  ),
+                );
+              }),
           ],),
 
           SizedBox(width: 10,),
