@@ -14,6 +14,7 @@ void main() async{
    await Hive.openBox("favKey");
    await Hive.openBox("downloadVal");
    await Hive.openBox("favVal");
+   await Hive.openBox("userDetail");
    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: Colors.amber,
   ));
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-          title: 'File Downloader',
+          title: 'Egy Best',
           debugShowCheckedModeBanner: false,
           home: SafeArea(bottom: false, 
             child: Scaffold(
